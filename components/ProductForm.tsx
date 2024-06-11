@@ -2,78 +2,30 @@ import { PropsWithChildren, useEffect, useState } from 'react';
 import { Alert, Pressable, StyleSheet, TextInput } from 'react-native';
 
 import { ThemedView } from '@/components/ThemedView';
-import { Colors } from '@/constants/Colors';
 import { ThemedText } from './ThemedText';
-import { View } from 'react-native-reanimated/lib/typescript/Animated';
+import HTTP from '@/utils/Http';
+import { router } from 'expo-router';
+import { useApiContext } from '@/context/ApiContext';
+import { IFormItem } from '@/constants/Interfaces';
+import { PRODUCT_FORM } from '@/constants/Forms';
 
-
-// "id" : "trj-blc",
-// "name" : "Tarjeta Black",
-// "description" : "Tarjeta de consumo bajo la modalidad de black",
-// "logo" : "https://www.visa.com.ec/dam/VCOM/regional/lac/SPA/Default/Pay%20With%20Visa/Tarjetas/visa-signature-400x225.jpg",
-// "date_release" : "2023-02-01",
-// "date_revision" : "2024-02-01"
-
-interface IFormItem {
-  id: string,
-  name: string,
-  type: string,
-  disabled: boolean
-}
-
-const items: Array<IFormItem> = [
-  {
-    id: "id",
-    name: "ID",
-    type: "text",
-    disabled: false
-  },
-  {
-    id: "name",
-    name: "Nombre",
-    type: "text",
-    disabled: false
-  },
-  {
-    id: "description",
-    name: "Descripción",
-    type: "text",
-    disabled: false
-  },
-  {
-    id: "logo",
-    name: "Logo",
-    type: "text",
-    disabled: false
-  },
-  {
-    id: "date_release",
-    name: "Fecha Liberación",
-    type: "date",
-    disabled: true
-  },
-  {
-    id: "date_revision",
-    name: "Fecha Revisión",
-    type: "date",
-    disabled: true
-  }
-]
+const currentDate = new Date();
+const currentDay = currentDate.getDate();
+const currentMonth = currentDate.getMonth() + 1;
+const currentYear = currentDate.getFullYear();
+const nextYearDate = new Date(currentDate);
+nextYearDate.setFullYear(currentYear + 1);
+const formatedNextYearDate = nextYearDate.toISOString();
 
 export function ProductForm({ data }: PropsWithChildren & { data? : any }) {
 
-  const currentDate = new Date();
-  const currentDay = currentDate.getDate();
-  const currentMonth = currentDate.getMonth() + 1;
-  const currentYear = currentDate.getFullYear();
-  const nextYearDate = new Date(currentDate);
-  const formatedNextYearDate = nextYearDate.toISOString()
+  const { downloadProducts } = useApiContext();
 
   const [form, setForm] = useState({
-    id: null,
-    name: null,
-    description: null,
-    logo: null,
+    id: "",
+    name: "",
+    description: "",
+    logo: "",
     date_release: currentDate,
     date_revision: formatedNextYearDate
   })
@@ -84,26 +36,71 @@ export function ProductForm({ data }: PropsWithChildren & { data? : any }) {
     logo: false
   })
   
-  const setFormItem = (id: string, text: any) => {
+  const setFormItem = (id: string, text: string) => {
+    text = text.trimStart();
+    if (id === "id") {
+      text = text.trim();
+      text = text.toLowerCase();
+    }
     setForm({
       ...form,
       [id]: text
     })
+    setFormError({
+      ...formError,
+      [id]: false
+    })
   }
 
-  const upsertProduct = () => {
-    console.log(JSON.stringify(form))
-    items.forEach( (item: IFormItem) => {
+  const validateInput = (itemId: string, itemValue: string, minText: number, maxText: number): boolean => {
+    if (itemValue.length < minText || itemValue.length > maxText) {
+      setFormError({
+        ...formError,
+        [itemId]: true
+      })
+      return false
+    }
+    return true
+  }
 
-    })
+  const createProduct = async () => {
+    if ( validateInput("id", form.id, 3, 10) && validateInput("name", form.name, 5, 100) && validateInput("description", form.description, 10, 200) && validateInput("logo", form.description, 1, 5000) ) {
+      const response = await HTTP.post("/bp/products", JSON.stringify(form))
+      if (response) {
+        await downloadProducts()
+        router.back()
+        Alert.alert("Product created successfully!")
+      } else {
+        Alert.alert("Something was wrong, try again!")
+      }
+    }
+  }
+
+  const editProduct = async () => {
+    const response = await HTTP.put("/bp/products", JSON.stringify(form), data.id)
+    if (response) {
+      await downloadProducts()
+      router.back()
+      Alert.alert("Product updated successfully!")
+    } else {
+      Alert.alert("Something was wrong, try again!")
+    }
+  }
+
+  const upsertProduct = async () => {
+    if ( data ) {
+      await editProduct();
+    } else {
+      await createProduct();
+    }
   }
 
   const clearForm = () => {
     setForm({
-      id: null,
-      name: null,
-      description: null,
-      logo: null,
+      id: "",
+      name: "",
+      description: "",
+      logo: "",
       date_release: currentDate,
       date_revision: formatedNextYearDate
     })
@@ -115,16 +112,24 @@ export function ProductForm({ data }: PropsWithChildren & { data? : any }) {
     })
   }
 
+  useEffect( () => {
+    if (data) {
+      setForm({
+        ...data
+      })
+    }
+  }, [])
+
   return (
     <ThemedView>
       {
-        items.length < 1 && <ThemedText>No inputs</ThemedText>
+        PRODUCT_FORM.length < 1 && <ThemedText>No inputs</ThemedText>
       }
       {
-        items.length > 0 &&
+        PRODUCT_FORM.length > 0 &&
         <>
           {
-            items.map( (item: IFormItem) => {
+            PRODUCT_FORM.map( (item: IFormItem) => {
               return(
                 <>
                   <ThemedText>{item.name}</ThemedText>
@@ -133,14 +138,14 @@ export function ProductForm({ data }: PropsWithChildren & { data? : any }) {
                     <>
                       <TextInput 
                         onChangeText={ (text) => setFormItem(item.id, text)}
-                        editable={!item.disabled}
-                        style={item.disabled ? styles.disbledItem : styles.formItem}
+                        editable={(data && item.id !== "id")}
+                        style={(data && item.id === "id") ? styles.disbledItem : styles.formItem}
                         //@ts-ignore
                         value={form[item.id]}
                       />
                       {
                         //@ts-ignore
-                        formError[item.id] && <ThemedText style={styles.error}>{item.name}</ThemedText>
+                        formError[item.id] && <ThemedText style={styles.error}>{item.name} not valid</ThemedText>
                       }
                     </>
                     :
@@ -152,12 +157,26 @@ export function ProductForm({ data }: PropsWithChildren & { data? : any }) {
               ) 
             })
           }
-           <Pressable style={{backgroundColor: "#ffdc04", padding: 10, alignItems: "center", borderRadius: 5, marginTop: 20, marginBottom: 10}} onPress={upsertProduct}>
-            <ThemedText>Agregar</ThemedText>
-          </Pressable>
-          <Pressable style={{backgroundColor: "#DDD", padding: 10, alignItems: "center", borderRadius: 5}} onPress={clearForm}>
-            <ThemedText>Reiniciar</ThemedText>
-          </Pressable>
+          {
+            !data ?
+            <>
+              <Pressable style={styles.primaryButton} onPress={upsertProduct}>
+                <ThemedText>Agregar</ThemedText>
+              </Pressable>
+              <Pressable style={styles.secondaryButton} onPress={clearForm}>
+                <ThemedText>Reiniciar</ThemedText>
+              </Pressable>
+            </>
+            :
+            <>
+              <Pressable style={styles.primaryButton} onPress={upsertProduct}>
+                <ThemedText>Editar</ThemedText>
+              </Pressable>
+              <Pressable style={styles.secondaryButton} onPress={() => router.back()}>
+                <ThemedText>Cancelar</ThemedText>
+              </Pressable>
+            </>
+          }
         </>
       }
     </ThemedView>
@@ -173,6 +192,20 @@ const styles = StyleSheet.create({
   content: {
     marginTop: 6,
     marginLeft: 24,
+  },
+  primaryButton: {
+    backgroundColor: "#ffdc04", 
+    padding: 10, 
+    alignItems: "center", 
+    borderRadius: 5, 
+    marginTop: 20, 
+    marginBottom: 10
+  },
+  secondaryButton: {
+    backgroundColor: "#DDD", 
+    padding: 10, 
+    alignItems: "center", 
+    borderRadius: 5
   },
   formItem: {
     height: 40,

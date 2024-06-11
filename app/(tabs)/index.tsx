@@ -1,76 +1,61 @@
-import { Image, StyleSheet, Platform, TextInput, Alert, Button, View, Pressable } from 'react-native';
+import { Image, StyleSheet, TextInput, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { useEffect, useState } from 'react';
-import { BaseButton } from 'react-native-gesture-handler';
+import { useState } from 'react';
+import { useApiContext } from '@/context/ApiContext';
+import { IProduct } from '@/constants/Interfaces';
 
-const BASE_URL = 'https://tribu-ti-staffing-desarrollo-afangwbmcrhucqfh.z01.azurefd.net/ipf-msa-productosfinancieros';
-const PATH = '/bp/products';
+interface ProductCardProps {
+  product: IProduct;
+}
 
-const downloadProducts = async () => {
-  try {
-    const response = await fetch(`${BASE_URL}${PATH}`, {
-      method: 'GET',
-      headers: {
-        'Content-Type': 'application/json',
-        'authorId': '12345',
-      },
-    });
+export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
+  const router = useRouter();
 
-    if (!response.ok) {
-      throw new Error('Network response was not ok');
-    }
-
-    const data = await response.json();
-    return data;
-  } catch (error) {
-    console.error('Fetch error:', error);
-    throw error;
-  }
-};
+  const { setCurrentProduct } = useApiContext();
+  return(
+    <Pressable
+      onPress={() => {
+        setCurrentProduct(product);
+        router.push(`/SingleProduct`);
+      }}
+    >
+      <ThemedView style={styles.stepContainer}>
+        <ThemedView style={styles.card}>
+          <ThemedText type="subtitle">{product.name}</ThemedText>
+          <ThemedText>{">"}</ThemedText>
+        </ThemedView>
+        <ThemedText>ID: {product.id}</ThemedText>
+      </ThemedView>
+      <View style={styles.divider}></View>
+    </Pressable>
+  )
+}
 
 export default function HomeScreen() {
   const router = useRouter();
 
-  const [products, setProducts] = useState<any[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<Error | null>(null);
-  const [text, setText] = useState("");
+  const { allProducts, loading, clearCurrentProduct } = useApiContext();
+
+  const [searchText, setSearchText] = useState("");
   const [searchError, setSearchError] = useState("");
   const [searchNoResult, setRearchNoResult] = useState(false);
-  const [foundProducts, setFoundProducts] = useState<any[]>([])
+  const [filteredProducts, setFilteredProducts] = useState<any[]>([])
 
   const searchProduct = () => {
     setRearchNoResult(false)
-    if ( text.length >= 3 ) {
+    if ( searchText.length >= 3 ) {
       setSearchError("")
-      const filteredProducts: any = products.filter( (product: any) => product.name.toLowerCase().includes(text.toLowerCase()));
-      console.log(filteredProducts)
-      if (filteredProducts.length < 1) setRearchNoResult(true)
-      else setFoundProducts(filteredProducts)
+      const foundProducts: Array<IProduct> = allProducts.filter( (product: any) => product.name.toLowerCase().includes(searchText.toLowerCase()));
+      if (foundProducts.length < 1) setRearchNoResult(true)
+      else setFilteredProducts(foundProducts)
     } else {
       setSearchError("Please type 3+ characters")
     }
   }
-
-
-  useEffect(() => {
-    const getProducts = async () => {
-      try {
-        const products = await downloadProducts();
-        setProducts(products);
-      } catch (error: any) {
-        setError(error);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    getProducts();
-  }, []);
 
   return (
     <ParallaxScrollView
@@ -84,18 +69,33 @@ export default function HomeScreen() {
       <ThemedView style={styles.titleContainer}>
         <ThemedText type="title">Products</ThemedText>
       </ThemedView>
-      <ThemedView>
-        <TextInput
-          style={styles.searchBar}
-          onChangeText={setText}
-          placeholder="Search"
-          returnKeyType="search"
-         onSubmitEditing={searchProduct}
-        />
-        {
-          searchError && <ThemedText style={styles.searchError}>{searchError}</ThemedText>
-        }
-      </ThemedView>
+      {
+        allProducts.length > 0 &&
+        <ThemedView>
+          {
+            (searchText || filteredProducts.length > 0) && 
+            <Pressable style={styles.clearButton} onPress={ () => {
+              setSearchText("");
+              setFilteredProducts([]);
+            }}>
+              <ThemedView style={styles.clearSearch}>
+                <ThemedText>Clear</ThemedText>
+              </ThemedView>
+            </Pressable>
+          }
+          <TextInput
+            style={styles.searchBar}
+            onChangeText={setSearchText}
+            placeholder="Search"
+            returnKeyType="search"
+            value={searchText}
+            onSubmitEditing={searchProduct}
+          />
+          {
+            searchError && <ThemedText style={styles.searchError}>{searchError}</ThemedText>
+          }
+        </ThemedView>
+      }
       {
         searchNoResult && 
         <ThemedView style={styles.stepContainer}>
@@ -110,46 +110,31 @@ export default function HomeScreen() {
         </ThemedView>
       }
       {
-        !loading && foundProducts.length < 1 &&
+        !loading && filteredProducts.length < 1 &&
         <>
           {
-            products.map( (product) => {
-              return (
-                <Pressable
-                  onPress={ () => router.push('/SingleProduct')}
-                >
-                  <ThemedView style={styles.stepContainer} >
-                    <ThemedView style={{flex: 1, flexDirection: "row", justifyContent: "space-between"}}>
-                      <ThemedText type="subtitle">{product.name}</ThemedText>
-                      <ThemedText style={{color: "#555", fontSize: 12}}>{">"}</ThemedText>
-                    </ThemedView>
-                    <ThemedText>ID: {product.id}</ThemedText>
-                  </ThemedView>
-                  <View style={{backgroundColor: "#DDD", height: 1}}></View>
-                </Pressable>
-              )
+            allProducts.map( (product: IProduct) => {
+              return <ProductCard key={product.id} product={product} />
             })
           }
         </>
       }
-      {/* {
-        !loading && foundProducts.length >= 1 &&
+      {
+        !loading && filteredProducts.length >= 1 &&
         <>
           {
-            foundProducts.map( (product) => {
-              return (
-                <ThemedView style={styles.stepContainer}>
-                  <ThemedText type="subtitle">{product.name}</ThemedText>
-                  <ThemedText>{product.id}</ThemedText>
-                </ThemedView>
-              )
+            filteredProducts.map( (product) => {
+              return <ProductCard key={product.id} product={product} />
             })
           }
         </>
-      } */}
+      }
       {
         !loading &&
-        <Pressable style={{backgroundColor: "#ffdc04", padding: 10, alignItems: "center", borderRadius: 5}} onPress={() => router.push("AddProduct")}>
+        <Pressable style={styles.primaryButton} onPress={() => {
+          clearCurrentProduct();
+          router.push("UpsertProduct");
+        }}>
           <ThemedText>Agregar</ThemedText>
         </Pressable>
       }
@@ -175,6 +160,22 @@ const styles = StyleSheet.create({
     left: 0,
     position: 'absolute',
   },
+  primaryButton: {
+    backgroundColor: "#ffdc04",
+    padding: 10, 
+    alignItems: "center", 
+    borderRadius: 5, 
+    marginTop: 40
+  },
+  divider: {
+    backgroundColor: "#DDD",
+    height: 1
+  },
+  card: {
+    flex: 1, 
+    flexDirection: "row", 
+    justifyContent: "space-between"
+  },
   searchBar: {
     height: 40,
     borderWidth: 1,
@@ -193,5 +194,15 @@ const styles = StyleSheet.create({
     fontStyle: "italic",
     color: "#555",
     marginBottom: 40
+  },
+  clearButton: {
+    margin: 2, 
+    alignItems: "flex-end"
+  },
+  clearSearch: {
+    backgroundColor: "#DDD", 
+    paddingVertical: 2, 
+    paddingHorizontal: 5, 
+    borderRadius: 5
   }
 });
