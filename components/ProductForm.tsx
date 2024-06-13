@@ -8,6 +8,7 @@ import { router } from 'expo-router';
 import { useApiContext } from '@/context/ApiContext';
 import { IFormItem } from '@/constants/Interfaces';
 import { PRODUCT_FORM } from '@/constants/Forms';
+import { styles } from '@/constants/StyleSheet';
 
 const currentDate = new Date();
 const currentDay = currentDate.getDate();
@@ -182,53 +183,3 @@ export function ProductForm({ data }: PropsWithChildren & { data? : any }) {
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  heading: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 6,
-  },
-  content: {
-    marginTop: 6,
-    marginLeft: 24,
-  },
-  primaryButton: {
-    backgroundColor: "#ffdc04", 
-    padding: 10, 
-    alignItems: "center", 
-    borderRadius: 5, 
-    marginTop: 20, 
-    marginBottom: 10
-  },
-  secondaryButton: {
-    backgroundColor: "#DDD", 
-    padding: 10, 
-    alignItems: "center", 
-    borderRadius: 5
-  },
-  formItem: {
-    height: 40,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    borderColor: "#555",
-  },
-  disbledItem: {
-    height: 40,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 5,
-    marginBottom: 10,
-    borderColor: "#F2F2F2",
-    backgroundColor: "#F2F2F2"
-  },
-  error: {
-    fontSize: 10,
-    fontStyle: "italic",
-    textAlign: "right",
-    color: "red",
-    marginRight: 3
-  },
-});

@@ -6,6 +6,7 @@ import { ThemedView } from '@/components/ThemedView';
 import SingleView from '@/components/SingleView';
 import { ProductForm } from '@/components/ProductForm';
 import { useApiContext } from '@/context/ApiContext';
+import { styles } from '@/constants/StyleSheet';
 
 export default function UpsertProduct() {
 
@@ -36,15 +37,3 @@ export default function UpsertProduct() {
     </SingleView>
   );
 }
-
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  }
-});

@@ -7,6 +7,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useState } from 'react';
 import { useApiContext } from '@/context/ApiContext';
 import { IProduct } from '@/constants/Interfaces';
+import { styles } from '@/constants/StyleSheet';
 
 interface ProductCardProps {
   product: IProduct;
@@ -143,66 +144,4 @@ export default function HomeScreen() {
   );
 }
 
-const styles = StyleSheet.create({
-  titleContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    gap: 8,
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  },
-  reactLogo: {
-    height: 100,
-    width: "100%",
-    bottom: 0,
-    left: 0,
-    position: 'absolute',
-  },
-  primaryButton: {
-    backgroundColor: "#ffdc04",
-    padding: 10, 
-    alignItems: "center", 
-    borderRadius: 5, 
-    marginTop: 40
-  },
-  divider: {
-    backgroundColor: "#DDD",
-    height: 1
-  },
-  card: {
-    flex: 1, 
-    flexDirection: "row", 
-    justifyContent: "space-between"
-  },
-  searchBar: {
-    height: 40,
-    borderWidth: 1,
-    padding: 10,
-    borderRadius: 5,
-    borderColor: "#555"
-  },
-  searchError: {
-    fontSize: 10,
-    fontStyle: "italic",
-    textAlign: "right",
-    color: "red",
-    marginRight: 3
-  },
-  noResultsText: {
-    fontStyle: "italic",
-    color: "#555",
-    marginBottom: 40
-  },
-  clearButton: {
-    margin: 2, 
-    alignItems: "flex-end"
-  },
-  clearSearch: {
-    backgroundColor: "#DDD", 
-    paddingVertical: 2, 
-    paddingHorizontal: 5, 
-    borderRadius: 5
-  }
-});
+

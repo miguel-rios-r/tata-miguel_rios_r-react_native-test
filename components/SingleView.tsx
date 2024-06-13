@@ -5,6 +5,7 @@ import Animated, {
 } from 'react-native-reanimated';
 
 import { ThemedView } from '@/components/ThemedView';
+import { styles } from '@/constants/StyleSheet';
 
 type Props = PropsWithChildren<{
   headerBackgroundColor: { dark: string; light: string };
@@ -23,19 +24,3 @@ export default function SingleView({
     </ThemedView>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-  },
-  header: {
-    height: 100,
-    overflow: 'hidden',
-  },
-  content: {
-    flex: 1,
-    padding: 32,
-    gap: 16,
-    overflow: 'hidden',
-  },
-});

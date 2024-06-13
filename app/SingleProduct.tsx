@@ -8,6 +8,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { useEffect, useState } from 'react';
 import SingleView from '@/components/SingleView';
 import { useApiContext } from '@/context/ApiContext';
+import { styles } from '@/constants/StyleSheet';
 
 export default function SingleProduct() {
 
@@ -86,15 +87,3 @@ export default function SingleProduct() {
     </SingleView>
   );
 }
-
-const styles = StyleSheet.create({
-  extraInfoContainer: {
-    flexDirection: 'row',
-    alignItems: 'flex-start',
-    justifyContent: 'space-between',
-  },
-  stepContainer: {
-    gap: 8,
-    marginBottom: 8,
-  }
-});
