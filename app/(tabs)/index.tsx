@@ -24,7 +24,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
         router.push(`/SingleProduct`);
       }}
     >
-      <ThemedView style={styles.stepContainer}>
+      <ThemedView style={styles.secondaryContainer}>
         <ThemedView style={styles.card}>
           <ThemedText type="subtitle">{product.name}</ThemedText>
           <ThemedText>{">"}</ThemedText>
@@ -99,14 +99,14 @@ export default function HomeScreen() {
       }
       {
         searchNoResult && 
-        <ThemedView style={styles.stepContainer}>
+        <ThemedView style={styles.secondaryContainer}>
           <ThemedText type="defaultSemiBold" style={styles.noResultsText}>Products not found</ThemedText>
           <ThemedText type="defaultSemiBold">All Products</ThemedText>
         </ThemedView>
       }
       {
         loading && 
-        <ThemedView style={styles.stepContainer}>
+        <ThemedView style={styles.secondaryContainer}>
           <ThemedText type="defaultSemiBold">Loading...</ThemedText>
         </ThemedView>
       }

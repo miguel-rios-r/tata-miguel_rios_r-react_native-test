@@ -18,14 +18,14 @@ export default function UpsertProduct() {
       >
       {
         loading && 
-        <ThemedView style={styles.stepContainer}>
+        <ThemedView style={styles.secondaryContainer}>
           <ThemedText type="defaultSemiBold">Loading...</ThemedText>
         </ThemedView>
       }
       {
         !loading &&
         <>
-          <ThemedView style={styles.titleContainer}>
+          <ThemedView style={styles.secondaryContainer}>
             <ThemedText type="title">Formulario de registro</ThemedText>
           </ThemedView>
           {

@@ -32,13 +32,13 @@ export default function SingleProduct() {
       >
       {
         loading && 
-        <ThemedView style={styles.stepContainer}>
+        <ThemedView style={styles.secondaryContainer}>
           <ThemedText type="defaultSemiBold">Loading...</ThemedText>
         </ThemedView>
       }
       {
         !loading &&
-        <ThemedView style={styles.stepContainer}>
+        <ThemedView style={styles.secondaryContainer}>
           <ThemedText type='title'>ID: {currentProduct.id}</ThemedText>
           <ThemedText>Información extra</ThemedText>
           <ThemedView style={styles.extraInfoContainer}>

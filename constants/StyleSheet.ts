@@ -6,9 +6,11 @@ export const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 8,
   },
-  stepContainer: {
+  secondaryContainer: {
     gap: 8,
     marginBottom: 8,
+    marginTop: 20,
+    marginRight: 20
   },
   reactLogo: {
     height: 100,

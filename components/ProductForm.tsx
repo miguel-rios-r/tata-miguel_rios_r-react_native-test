@@ -122,7 +122,7 @@ export function ProductForm({ data }: PropsWithChildren & { data? : any }) {
   }, [])
 
   return (
-    <ThemedView>
+    <ThemedView style={styles.secondaryContainer}>
       {
         PRODUCT_FORM.length < 1 && <ThemedText>No inputs</ThemedText>
       }
