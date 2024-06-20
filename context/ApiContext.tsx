@@ -12,6 +12,16 @@ interface ApiContextProps {
   deleteProduct: (productId: string) => Promise<any>,
 }
 
+const defaultProduct: IProduct = {
+  id: '',
+  name: '',
+  description: '',
+  logo: '',
+  date_release: '',
+  date_revision: '',
+};
+
+
 const ApiContext = createContext<ApiContextProps>({
   loading: false,
   downloadProducts: async () => {},
@@ -33,24 +43,11 @@ export const ApiContextProvider: React.FC<any> = ({ children }) => {
   
   const [loading, setLoading] = useState(true);
   const [allProducts, setAllProducts] = useState([]);
-  const [currentProduct, setCurrentProduct] = useState({
-    id: "",
-    name: "",
-    description: "",
-    logo: "",
-    date_release: "",
-    date_revision: ""
-  })
+  const [currentProduct, setCurrentProduct] = useState<IProduct>(defaultProduct);
+
 
   const clearCurrentProduct = () => {
-    setCurrentProduct({
-      id: "",
-      name: "",
-      description: "",
-      logo: "",
-      date_release: "",
-      date_revision: ""
-    })
+    setCurrentProduct(defaultProduct);
   }
 
   const downloadProducts = async () => {
