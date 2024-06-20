@@ -1,4 +1,4 @@
-import { Image, StyleSheet, TextInput, View, Pressable } from 'react-native';
+import { Image, StyleSheet, TextInput, View, Pressable, FlatList } from 'react-native';
 import { useRouter } from 'expo-router';
 
 import ParallaxScrollView from '@/components/ParallaxScrollView';
@@ -114,9 +114,10 @@ export default function HomeScreen() {
         !loading && filteredProducts.length < 1 &&
         <>
           {
-            allProducts.map( (product: IProduct) => {
-              return <ProductCard key={product.id} product={product} />
-            })
+            <FlatList
+            data={allProducts}
+            renderItem={(product: any, index: number) => <ProductCard key={index} product={product.item}/>}
+          />
           }
         </>
       }
@@ -124,9 +125,10 @@ export default function HomeScreen() {
         !loading && filteredProducts.length >= 1 &&
         <>
           {
-            filteredProducts.map( (product) => {
-              return <ProductCard key={product.id} product={product} />
-            })
+            <FlatList
+            data={allProducts}
+            renderItem={(product: any, index: number) => <ProductCard key={index} product={product.item}/>}
+          />
           }
         </>
       }
