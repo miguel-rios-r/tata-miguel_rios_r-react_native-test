@@ -116,7 +116,7 @@ export default function HomeScreen() {
           {
             <FlatList
             data={allProducts}
-            renderItem={(product: any, index: number) => <ProductCard key={index} product={product.item}/>}
+            renderItem={(product: {item: IProduct}) => <ProductCard key={product.item.id} product={product.item}/>}
           />
           }
         </>
@@ -127,7 +127,7 @@ export default function HomeScreen() {
           {
             <FlatList
             data={allProducts}
-            renderItem={(product: any, index: number) => <ProductCard key={index} product={product.item}/>}
+            renderItem={(product: {item: IProduct}) => <ProductCard key={product.item.id} product={product.item}/>}
           />
           }
         </>
